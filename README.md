@@ -1,5 +1,3 @@
-# Smart-LPG-Cylinder-Monitoring-and-Auto-booking-System
-
 # 🔥 Smart LPG Cylinder Monitoring and Auto Booking System
 
 An IoT-based solution to monitor LPG cylinder levels in real-time using a load cell, with automatic SMS and call alerts when the gas level is low. It includes buzzer-based local alerting and reset functionality after a refill is detected.
