@@ -1,0 +1,100 @@
+# 🔥 Smart LPG Cylinder Monitoring and Auto Booking System
+
+An IoT-based solution to monitor LPG cylinder levels in real-time using a load cell, with automatic SMS and call alerts when the gas level is low. It includes buzzer-based local alerting and reset functionality after a refill is detected.
+
+---
+
+## 🧰 Components Used
+
+| Component         | Description                                 |
+|------------------|---------------------------------------------|
+| Arduino UNO R3    | Microcontroller for processing and control  |
+| HX711 Module      | 24-bit ADC for load cell data               |
+| Load Cell (10kg)  | Measures weight of the LPG cylinder         |
+| SIM800L Module    | GSM module for SMS and call functionality   |
+| Buzzer            | Audio alert for low gas level               |
+| Push Button       | User acknowledgment/reset input             |
+| LCD 1602 with I2C | Display weight and status messages          |
+| Li-ion Battery    | Powers GSM module (3.7V, 2A recommended)    |
+| Power Supply      | 5V/9V source (regulated for Arduino)        |
+
+---
+
+## 🔌 Hardware Connections
+
+### 🏋️ Load Cell (10kg) to HX711 Module
+
+| Load Cell Wire | HX711 Pin |
+|----------------|-----------|
+| Red            | E+        |
+| Black          | E−        |
+| Green          | A+        |
+| White          | A−        |
+
+---
+
+### ⚙️ HX711 Module to Arduino Uno
+
+| HX711 Pin | Arduino Uno Pin |
+|-----------|------------------|
+| VCC       | 5V               |
+| GND       | GND              |
+| DT        | D4               |
+| SCK       | D5               |
+
+---
+
+### 🖥️ LCD 1602 with I2C to Arduino Uno
+
+| I2C Pin | Arduino Uno Pin |
+|---------|------------------|
+| SDA     | A4               |
+| SCL     | A5               |
+| VCC     | 5V               |
+| GND     | GND              |
+
+---
+
+### 📶 SIM800L GSM Module to Arduino & Battery
+
+| SIM800L Pin | Connection                                   |
+|-------------|----------------------------------------------|
+| VCC         | Positive terminal of 3.7V Li-ion battery     |
+| GND         | Ground terminal of 3.7V Li-ion battery       |
+| TX          | RX pin of Arduino (e.g., D8 via SoftwareSerial) |
+| RX          | TX pin of Arduino (e.g., D9 via SoftwareSerial) |
+
+> ⚠️ **Note**: SIM800L is powered **only** by the 3.7V–4.2V battery, not from Arduino.  
+> ⚠️ **Important**: Ensure your battery can provide at least **2A current** for stable operation.
+
+---
+
+### 🔋 Li-ion Rechargeable Battery (ICR18650 - 3.7V)
+
+- Powers **only** the SIM800L GSM module.
+
+---
+
+### 💻 Arduino Uno Power
+
+- Powered via **USB cable** or **regulated adapter** (not the Li-ion battery).
+
+---
+
+### 🔔 Buzzer to Arduino Uno
+
+| Buzzer Terminal | Arduino Uno Pin |
+|------------------|------------------|
+| + (Positive)     | D6               |
+| − (Negative)     | GND              |
+
+---
+
+### 🔘 Push Button to Arduino Uno
+
+| Push Button End | Arduino Uno Pin |
+|------------------|------------------|
+| One End          | D9 (Digital Input) |
+| Other End        | GND               |
+
+---
