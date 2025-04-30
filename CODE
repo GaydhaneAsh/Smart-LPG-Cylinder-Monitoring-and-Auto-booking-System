@@ -1,0 +1,138 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include "HX711.h"
+#include <SoftwareSerial.h>
+
+// LCD & HX711
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+HX711 scale;
+
+// HX711 Pins
+#define DOUT 4
+#define SCK 5
+
+// SIM800L
+SoftwareSerial mySerial(3, 2);  // SIM800L TX, RX
+
+// Buzzer and Button
+#define BUZZER_PIN 7
+#define BUTTON_PIN 8
+
+// Calibration
+float calibration_factor = -238;  // Adjust based on your 1kg weight
+bool buzzerActive = false;
+bool alertSent = false;
+
+void setup() {
+  Serial.begin(115200);
+  mySerial.begin(9600);
+  Wire.begin();
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Initializing...");
+  delay(2000);
+  lcd.clear();
+
+  // HX711
+  scale.begin(DOUT, SCK);
+  delay(1000);
+  if (!scale.is_ready()) {
+    lcd.print("HX711 Error!");
+    while (1);
+  }
+
+  lcd.print("Taring...");
+  scale.set_scale();
+  scale.tare();
+  delay(2000);
+  scale.set_scale(calibration_factor);
+  lcd.clear();
+  lcd.print("Scale Ready");
+  delay(1000);
+
+  // Pins
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+}
+
+void loop() {
+  float weight = scale.get_units(10);
+  if (abs(weight) < 0.05) weight = 0.00;
+
+  // LCD flicker prevention
+  static float lastWeight = -999;
+  if (abs(weight - lastWeight) > 0.5) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Weight (g):");
+    lcd.setCursor(0, 1);
+    lcd.print(weight, 2);
+    lastWeight = weight;
+  }
+
+  Serial.print("Weight: ");
+  Serial.println(weight, 2);
+
+  // Buzzer & Alert Logic
+  if (weight <= 150 && !alertSent) {
+    buzzerActive = true;
+    delay(1000);
+    sendSMS();
+    delay(2000);
+    makeCall();
+    alertSent = true;
+  }
+
+  // Reset if weight > 300g (refill)
+  if (weight > 300) {
+    alertSent = false;
+  }
+
+  // Button debounce logic
+  static unsigned long lastButtonPress = 0;
+  if (digitalRead(BUTTON_PIN) == LOW && millis() - lastButtonPress > 300) {
+    buzzerActive = false;
+    lastButtonPress = millis();
+  }
+
+  digitalWrite(BUZZER_PIN, buzzerActive ? HIGH : LOW);
+  delay(1000);
+}
+
+void sendSMS() {
+  mySerial.println("AT");
+  delay(1000);
+  mySerial.println("AT+CMGF=1");
+  delay(1000);
+  updateSerial();
+  mySerial.println("AT+CMGS=\"+91xxxxxxxxxx\"");  // Change to your number
+  delay(1000);
+  updateSerial();
+  mySerial.print("Alert! LPG level is LOW. Please refill the cylinder.");
+  delay(1000);
+  mySerial.write(26); // Ctrl+Z to send
+  Serial.println("SMS sent.");
+  delay(7000);
+}
+
+void makeCall() {
+  mySerial.println("AT");
+  delay(1000);
+  mySerial.println("ATD+91xxxxxxxxxx;");  // <-- Semicolon is important
+  Serial.println("Calling...");
+  delay(20000);  // Call duration
+  mySerial.println("ATH");  // Hang up
+  Serial.println("Call ended.");
+  delay(1000);
+}
+
+void updateSerial() {
+  while (Serial.available()) {
+    mySerial.write(Serial.read());
+  }
+  while (mySerial.available()) {
+    Serial.write(mySerial.read());
+  }
+}
