@@ -9,7 +9,7 @@ An IoT-based solution to monitor LPG cylinder levels in real-time using a load c
 The objective of this project is to **design and develop an automated LPG booking system** that can efficiently monitor the weight of a gas cylinder using **load cells** and an **HX711 amplifier**. The system aims to detect when the gas level falls below a predefined threshold and automatically **initiate booking by making call attempts** through the **SIM800L GSM module**. If repeated call attempts fail, it is intended to **send an SMS alert** to ensure that booking is completed without manual intervention.
 
 Additionally, the system seeks to:
-- Display real-time gas status on a **1602 LCD module** for user awareness,
+- Display real-time gas status on a **16x2 LCD module** for user awareness,
 - Ensure reliable communication through a **rechargeable battery-powered GSM unit**, and
 - Promote **safer, more convenient, and energy-efficient** management of LPG for both **household and commercial users**.
 
